@@ -1,14 +1,14 @@
-# Additional groups in your containers: Easier with Podman x.y
+# Additional groups in your containers: Easier with Podman 4.7
 
 > This article explains how to map an additional group to your containers,
-> a feature much easier to achieve with Podman v x.y and above. [Sergio Oller](https://github.com/zeehio)
+> a feature much easier to achieve with Podman 4.7 and above. [Sergio Oller](https://github.com/zeehio)
 > was invited to write it after his pull request [#18713](https://github.com/containers/podman/pull/18713)
 > got merged.
 
 ## Summary
 
 Rootless containers are becoming easier and easier to use. Starting with Podman
-v x.y, it is easier to map additional groups to your containers so you can conveniently
+4.7, it is easier to map additional groups to your containers so you can conveniently
 access shared files. This is in short how you can do it:
 
 1. Subordinate the group ID you would like to mount to your user:
@@ -29,7 +29,7 @@ access shared files. This is in short how you can do it:
 
 3. Run your container:
 
-    With Podman v x.y and above:
+    With Podman 4.7 and above:
 
         $ podman run \
             --rm \
@@ -58,7 +58,7 @@ access shared files. This is in short how you can do it:
 Files group-owned by the `researchers` group will appear inside the container as
 belonging to group ID `102000`.
 
-The Step 3 above is simpler on Podman version x.y and above. Earlier it required
+The Step 3 above is simpler on Podman version 4.7 and above. Earlier it required
 that the user understood mappings in rootless Podman. Feel free to keep reading
 if you want an explanation for all of that.
 
@@ -206,7 +206,7 @@ control over your main GID, so you can freely map it. However it does not give y
 control over all your additional GIDs, so by default those additional GIDs can't
 be mapped.
 
-## So how can we map an additional group with Podman v x.y and above?
+## So how can we map an additional group with Podman 4.7 and above?
 
 You will need to subordinate your additional group to your user. Here is
 an example, subordinating the group `researchers` to `alice`:
@@ -292,7 +292,7 @@ Putting all together, the command becomes:
 
 ## Final words
 
-The extended syntax for mappings found on Podman v x.y allows you to provide a
+The extended syntax for mappings found on Podman 4.7 allows you to provide a
 more expressive and simple mappings, hopefully easier to use.
 
 A big thank you to [@giuseppe](https://github.com/giuseppe), [@Luap99](https://github.com/Luap99),
