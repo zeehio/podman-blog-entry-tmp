@@ -75,8 +75,10 @@ and motivated scientists. Undergraduate, master students, PhD researchers, postd
 We all had to write and run our own code, and sometimes download and run some niche
 software implementing some method related to a relevant paper. Fortunately for us, we had access to
 High Performance Computing (HPC) servers for our calculations, and we had access to
-fantastic tools such as [JupyterHub](https://jupyter.org/hub), [RStudio Server](https://posit.co/products/open-source/rstudio-server/)
-and the [Jupyter Docker stack](https://jupyter-docker-stacks.readthedocs.io/en/latest/) and [rocker](https://rocker-project.org/) images, running under Docker to isolate our dependencies.
+fantastic tools such as [JupyterHub](https://jupyter.org/hub),
+[RStudio Server](https://posit.co/products/open-source/rstudio-server/)
+and the [Jupyter Docker stack](https://jupyter-docker-stacks.readthedocs.io/en/latest/) and
+[rocker](https://rocker-project.org/) images, running under Docker to isolate our dependencies.
 
 Being one of the administrators of the HPC was really fun, but it also was a
 significant overhead over our own research interests. Users needed the flexibility
@@ -87,7 +89,8 @@ but it always caused some **concern** to all of us, and it was a responsibility 
 to bear even if they did not want to.
 
 Their usage of Docker also came with permission issues. While mounting directories
-in their containers, they had **file ownership issues**. A forgotten [`--user`](https://docs.podman.io/en/latest/markdown/podman-run.1.html#user-u-user-group) flag
+in their containers, they had **file ownership issues**. A forgotten
+[`--user`](https://docs.podman.io/en/latest/markdown/podman-run.1.html#user-u-user-group) flag
 somewhere and they ended up with files owned by root that they did not know how
 to get back under their control.
 
@@ -101,7 +104,8 @@ and they did not suffer those file permissions? Well, **rootless containers** so
 When running rootless containers, the container engine runs as the current user, without
 any additional permissions. No root powers are given on the host, although root-like
 permissions are available inside the container. I first heard about rootless containers
-through the [rootless Podman tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md), however Docker supports running in [rootless mode](https://docs.docker.com/engine/security/rootless/) as well.
+through the [rootless Podman tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md),
+however Docker supports running in [rootless mode](https://docs.docker.com/engine/security/rootless/) as well.
 
 With rootless Podman, each user has its own list of images and list of containers
 running. All their images, container layers, etc, is stored under their home
@@ -124,7 +128,10 @@ to the `researchers` group, and we needed rootless containers to access our `/mn
 directory in the host, with all our shared data. Even with `--volume /mnt/data:/data` and
 the `--group-add keep-groups` option, we were not able to access the files, since
 they appeared to be owned by `nobody` inside the container. We learnt the user namespace
-had to be set up in some way. [We](https://github.com/rocker-org/rocker-versioned2/pull/636) [were](https://github.com/rocker-org/rocker-versioned2/issues/251) [not](https://github.com/rocker-org/rocker-versioned2/issues/346) [alone](https://github.com/NERSC/podman-hpc/issues/68).
+had to be set up in some way. [We](https://github.com/rocker-org/rocker-versioned2/pull/636)
+[were](https://github.com/rocker-org/rocker-versioned2/issues/251)
+[not](https://github.com/rocker-org/rocker-versioned2/issues/346)
+[alone](https://github.com/NERSC/podman-hpc/issues/68).
 
 ## How does Rootless Podman lets the user act as multiple users?
 
@@ -179,7 +186,8 @@ That's how the magic can work.
 
 ## How does rootless Podman map users?
 
-Reading the [--uidmap documentation](https://docs.podman.io/en/latest/markdown/podman-run.1.html#uidmap-flags-container-uid-from-uid-amount) helps to understand how Podman uses the namespaces:
+Reading the [--uidmap documentation](https://docs.podman.io/en/latest/markdown/podman-run.1.html#uidmap-flags-container-uid-from-uid-amount)
+helps to understand how Podman uses the namespaces:
 
 Podman creates two nested user namespaces, and the user can only customize the second one with the `--uidmap` and `--gidmap` arguments.
 
@@ -233,7 +241,10 @@ Then you can create your container:
 
 The process running in the container should keep your current groups `--group-add keep-groups`.
 
-You can provide a group mapping with `--gidmap`, so the `researchers` host group (`2000`) is mapped to a known GID (`102000` in the example above) in the container. See how the `--gidmap` argument contains some `flags` (`+g`) and an operator `@`, new of this Podman release. Before these operators were available, specifying such mappings was more complicated.
+You can provide a group mapping with `--gidmap`, so the `researchers` host group (`2000`) is
+mapped to a known GID (`102000` in the example above) in the container. See how the `--gidmap`
+argument contains some `flags` (`+g`) and an operator `@`, new of this Podman release. Before
+these operators were available, specifying such mappings was more complicated.
 
 ## How can we map an additional group with previous Podman versions?
 
@@ -244,7 +255,9 @@ the rocker project, but I guess it is worth that they reach a wider audience her
 First subordinate the group to your user and update the intermediate user namespace as
 described above.
 
-Then, we have to write the user mappings. Without the `@` operator, we can't refer to the host GID directly, so we must find the GID in the intermediate user namespace corresponding to host GID `2000` with:
+Then, we have to write the user mappings. Without the `@` operator, we can't refer to the host GID
+directly, so we must find the GID in the intermediate user namespace corresponding to host
+GID `2000` with:
 
 ```{.sh}
 podman unshare cat /proc/self/gid_map
@@ -267,7 +280,9 @@ extra piece we need:
 
 This will become `--gidmap "0:0:1" --gidmap "1:2:65535" --gidmap "102000:1:1"`.
 
-But there is more! By default, if the `--gidmap` is given without a `--uidmap`, Podman assumes that the user wants to use the same IDs for `--uidmap` than for `--gidmap`, so we must specify a user ID mapping as well to avoid the copy. We will map:
+But there is more! By default, if the `--gidmap` is given without a `--uidmap`, Podman assumes
+that the user wants to use the same IDs for `--uidmap` than for `--gidmap`, so we must specify a user ID
+mapping as well to avoid the copy. We will map:
 
 | Type  | Container ID | Intermediate ID | Reason                                                                               |
 | ----- | ------------ | --------------- | ------------------------------------------------------------------------------------ |
