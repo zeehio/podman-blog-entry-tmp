@@ -76,7 +76,7 @@ We all had to write and run our own code, and sometimes download and run some ni
 software implementing some method related to a relevant paper. Fortunately for us, we had access to
 High Performance Computing (HPC) servers for our calculations, and we had access to
 fantastic tools such as [JupyterHub](https://jupyter.org/hub), [RStudio Server](https://posit.co/products/open-source/rstudio-server/)
-and the [jupyter docker stack](https://jupyter-docker-stacks.readthedocs.io/en/latest/) and [rocker](https://rocker-project.org/) images, running under Docker to isolate our dependencies.
+and the [Jupyter Docker stack](https://jupyter-docker-stacks.readthedocs.io/en/latest/) and [rocker](https://rocker-project.org/) images, running under Docker to isolate our dependencies.
 
 Being one of the administrators of the HPC was really fun, but it also was a
 significant overhead over our own research interests. Users needed the flexibility
@@ -86,7 +86,7 @@ that they were given access to the `docker` group and got equivalent
 but it always caused some **concern** to all of us, and it was a responsibility they had
 to bear even if they did not want to.
 
-Their usage of docker also came with permission issues. While mounting directories
+Their usage of Docker also came with permission issues. While mounting directories
 in their containers, they had **file ownership issues**. A forgotten [`--user`](https://docs.podman.io/en/latest/markdown/podman-run.1.html#user-u-user-group) flag
 somewhere and they ended up with files owned by root that they did not know how
 to get back under their control.
@@ -101,7 +101,7 @@ and they did not suffer those file permissions? Well, **rootless containers** so
 When running rootless containers, the container engine runs as the current user, without
 any additional permissions. No root powers are given on the host, although root-like
 permissions are available inside the container. I first heard about rootless containers
-through the [rootless podman tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md), however Docker supports running in [rootless mode](https://docs.docker.com/engine/security/rootless/) as well.
+through the [rootless Podman tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md), however Docker supports running in [rootless mode](https://docs.docker.com/engine/security/rootless/) as well.
 
 With rootless Podman, each user has its own list of images and list of containers
 running. All their images, container layers, etc, is stored under their home
@@ -146,7 +146,7 @@ can use:
 You will get your user name, the initial subordinated UID and the length of the subordinated
 id range. If you don't have additional subuids, you will have to enable user namespaces.
 Follow the [rootless tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md)
-in the podman documentation if you have issues.
+in the Podman documentation if you have issues.
 
 The Linux kernel lets users map their own UID and their subordinated IDs in "user namespaces". The
 user can impersonate those subordinated IDs as if they were their own. 
