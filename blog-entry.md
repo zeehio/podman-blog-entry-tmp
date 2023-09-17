@@ -7,8 +7,8 @@
 
 ## Summary
 
-Rootless containers are becoming easier and easier to use. Starting with Podman
-4.7, it is easier to map additional groups to your containers so you can conveniently
+Rootless containers are becoming easier to use. Starting with Podman
+4.7, it is easier to map additional groups to your containers, so you can conveniently
 access shared files. This is in short how you can do it:
 
 1. Subordinate the group ID you would like to mount to your user:
